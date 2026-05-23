@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+tasks:
+  default:
+    aliases:
+      - list
+    desc: List all tasks
+    cmd: task -l
+    silent: false
+  dev:tsp:
+    desc: Typespec compile
+    cmd: tsp compile ./tsp-files
+    silent: true
