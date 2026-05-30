@@ -15,6 +15,7 @@
     "noEmit": true
   },
   "include": [
+    "app/**/*.ts",
     "src/**/*.ts",
     "tsp-output/server/js/src/**/*.ts"
   ],
