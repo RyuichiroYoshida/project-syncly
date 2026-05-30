@@ -73,6 +73,7 @@ API本体、ドキュメント
 ### DB
 
 - MySQL コードログ保存、過去の開催情報を保存
+- テーブル定義は [docs/TableDefinition.md](./docs/TableDefinition.md) に記載
 
 ### デプロイ
 
