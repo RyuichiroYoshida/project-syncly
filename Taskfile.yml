@@ -13,3 +13,11 @@ tasks:
     desc: Typespec compile
     cmd: tsp compile ./tsp-files
     silent: true
+  up:
+    desc: Docker compose up -d
+    cmd: docker-compose up -d
+    silent: false
+  down:
+    desc: Docker compose down
+    cmd: docker-compose down
+    silent: false
