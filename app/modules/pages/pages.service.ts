@@ -1,5 +1,17 @@
-import { getPages } from "./pages.repository.js";
+import {
+  confirmPage,
+  createPage,
+  deletePage,
+  getPageDetail,
+  remindPage,
+  updatePage,
+} from "./pages.repository.js";
 
 export const pagesService = {
-  getPages,
+  confirmPage,
+  createPage,
+  deletePage,
+  getPageDetail,
+  remindPage,
+  updatePage,
 };
