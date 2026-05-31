@@ -62,13 +62,13 @@
 
 ### フロントエンド
 
-- React / TypeScript
+- Next.js / TypeScript
 
 ### バックエンド
 
 API本体、ドキュメント
 
-- Go / TypeSpec / OpenAPI
+- Node.js / TypeScript / TypeSpec / OpenAPI
 
 ### DB
 

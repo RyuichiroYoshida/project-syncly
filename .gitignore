@@ -4,6 +4,10 @@
 # Dependency directories
 node_modules/
 
+# Build outputs
+dist/
+dist-test/
+
 # Environment files
 .env
 .env.*

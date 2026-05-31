@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist-test"
+  },
+  "include": [
+    "app/**/*.ts",
+    "tsp-output/server/js/src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-test",
+    "tsp-output/server/js/src/generated/http/openapi3.ts"
+  ]
+}

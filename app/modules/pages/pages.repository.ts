@@ -64,8 +64,18 @@ interface AvailabilitySummaryRow extends RowDataPacket {
   available_count: number;
 }
 
-type Db = typeof pool | PoolConnection;
+type Db = typeof pool;
 type SqlValue = string | number | boolean | Date | null;
+
+let db: Db = pool;
+
+export function setPagesRepositoryDbForTest(testDb: Db): void {
+  db = testDb;
+}
+
+export function resetPagesRepositoryDbForTest(): void {
+  db = pool;
+}
 
 export async function createPage(
   body: CreatePageRequest,
@@ -74,7 +84,7 @@ export async function createPage(
     return invalid("CreatePageRequest.candidates must not be empty.");
   }
 
-  const connection = await pool.getConnection();
+  const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
 
@@ -114,7 +124,7 @@ export async function createPage(
 }
 
 export async function getPageDetail(pageId: string): Promise<PageDetail | undefined> {
-  const [pageRows] = await pool.query<PageRow[]>(
+  const [pageRows] = await db.query<PageRow[]>(
     `SELECT
       id,
       owner_name,
@@ -136,7 +146,7 @@ export async function getPageDetail(pageId: string): Promise<PageDetail | undefi
     return undefined;
   }
 
-  const [candidateRows] = await pool.query<CandidateRow[]>(
+  const [candidateRows] = await db.query<CandidateRow[]>(
     `SELECT id, candidate_at, sort_order
     FROM page_datetime_candidates
     WHERE page_id = ?
@@ -144,7 +154,7 @@ export async function getPageDetail(pageId: string): Promise<PageDetail | undefi
     [pageId],
   );
 
-  const [confirmationRows] = await pool.query<ConfirmationRow[]>(
+  const [confirmationRows] = await db.query<ConfirmationRow[]>(
     `SELECT
       pc.candidate_id,
       pdc.candidate_at,
@@ -176,7 +186,7 @@ export async function updatePage(
   pageId: string,
   body: UpdatePageRequest,
 ): Promise<PageDetail | ErrorResponse> {
-  const connection = await pool.getConnection();
+  const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
 
@@ -239,7 +249,7 @@ export async function updatePage(
 }
 
 export async function deletePage(pageId: string): Promise<void | ErrorResponse> {
-  const [result] = await pool.execute<ResultSetHeader>(
+  const [result] = await db.execute<ResultSetHeader>(
     `UPDATE pages
     SET status = ?, deleted_at = COALESCE(deleted_at, CURRENT_TIMESTAMP(6))
     WHERE id = ?`,
@@ -255,7 +265,7 @@ export async function confirmPage(
   pageId: string,
   body: ConfirmPageRequest,
 ): Promise<PageDetail | ErrorResponse> {
-  const connection = await pool.getConnection();
+  const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
 
@@ -300,7 +310,7 @@ export async function confirmPage(
 }
 
 export async function remindPage(pageId: string): Promise<void | ErrorResponse> {
-  const [rows] = await pool.query<RowDataPacket[]>(
+  const [rows] = await db.query<RowDataPacket[]>(
     `SELECT id FROM pages WHERE id = ?`,
     [pageId],
   );
@@ -313,7 +323,7 @@ export async function remindPage(pageId: string): Promise<void | ErrorResponse> 
 export async function listParticipantAnswers(
   pageId: string,
 ): Promise<ParticipantAnswer[]> {
-  const [participantRows] = await pool.query<ParticipantRow[]>(
+  const [participantRows] = await db.query<ParticipantRow[]>(
     `SELECT
       id,
       name,
@@ -327,7 +337,7 @@ export async function listParticipantAnswers(
     [pageId],
   );
 
-  const [availabilityRows] = await pool.query<AvailabilityRow[]>(
+  const [availabilityRows] = await db.query<AvailabilityRow[]>(
     `SELECT participant_id, candidate_id
     FROM participant_available_candidates
     WHERE page_id = ?
@@ -356,7 +366,7 @@ export async function listParticipantAnswers(
 async function listAvailabilitySummary(
   pageId: string,
 ): Promise<CandidateAvailabilitySummary[]> {
-  const [rows] = await pool.query<AvailabilitySummaryRow[]>(
+  const [rows] = await db.query<AvailabilitySummaryRow[]>(
     `SELECT
       pdc.id AS candidate_id,
       pdc.candidate_at,

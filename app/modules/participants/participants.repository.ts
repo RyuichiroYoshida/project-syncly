@@ -24,6 +24,17 @@ interface AvailabilityRow extends RowDataPacket {
 }
 
 type SqlValue = string | number | boolean | Date | null;
+type Db = typeof pool;
+
+let db: Db = pool;
+
+export function setParticipantsRepositoryDbForTest(testDb: Db): void {
+  db = testDb;
+}
+
+export function resetParticipantsRepositoryDbForTest(): void {
+  db = pool;
+}
 
 export async function listParticipants(
   pageId: string,
@@ -32,7 +43,7 @@ export async function listParticipants(
     return notFound("Page was not found.");
   }
 
-  const [rows] = await pool.query<ParticipantRow[]>(
+  const [rows] = await db.query<ParticipantRow[]>(
     `SELECT
       id,
       name,
@@ -53,7 +64,7 @@ export async function createParticipant(
   pageId: string,
   body: CreateParticipantRequest,
 ): Promise<ParticipantAnswer | ErrorResponse> {
-  const connection = await pool.getConnection();
+  const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
 
@@ -102,7 +113,7 @@ export async function getParticipant(
   pageId: string,
   participantId: string,
 ): Promise<ParticipantAnswer | undefined> {
-  const [rows] = await pool.query<ParticipantRow[]>(
+  const [rows] = await db.query<ParticipantRow[]>(
     `SELECT
       id,
       name,
@@ -132,7 +143,7 @@ export async function updateParticipant(
   participantId: string,
   body: UpdateParticipantRequest,
 ): Promise<ParticipantAnswer | ErrorResponse> {
-  const connection = await pool.getConnection();
+  const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
 
@@ -201,7 +212,7 @@ export async function deleteParticipant(
   pageId: string,
   participantId: string,
 ): Promise<void | ErrorResponse> {
-  const [result] = await pool.execute<ResultSetHeader>(
+  const [result] = await db.execute<ResultSetHeader>(
     `DELETE FROM page_participants
     WHERE page_id = ? AND id = ?`,
     [pageId, participantId],
@@ -216,7 +227,7 @@ async function toParticipantAnswer(
   pageId: string,
   row: ParticipantRow,
 ): Promise<ParticipantAnswer> {
-  const [availabilityRows] = await pool.query<AvailabilityRow[]>(
+  const [availabilityRows] = await db.query<AvailabilityRow[]>(
     `SELECT candidate_id
     FROM participant_available_candidates
     WHERE page_id = ? AND participant_id = ?
@@ -236,7 +247,7 @@ async function toParticipantAnswer(
 }
 
 async function pageExists(pageId: string): Promise<boolean> {
-  const [rows] = await pool.query<RowDataPacket[]>(
+  const [rows] = await db.query<RowDataPacket[]>(
     `SELECT id FROM pages WHERE id = ?`,
     [pageId],
   );
